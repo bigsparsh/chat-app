@@ -9,5 +9,8 @@
     "allowJs": true,
     "jsx": "preserve",
     "noEmit": true
+  },
+  "paths": {
+    "@ui/*": ["../../packages/ui/src/*"]
   }
 }
