@@ -23,5 +23,10 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/bun": "^1.1.6",
+    "bcrypt": "^5.1.1"
+  }
 }
