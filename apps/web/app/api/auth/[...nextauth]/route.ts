@@ -3,6 +3,8 @@ import bcrpyt from "bcrypt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
+import { createUser } from "../../../../actions/user";
+import { AuthProvider } from "@prisma/client";
 
 const handler = NextAuth({
   providers: [
@@ -15,7 +17,13 @@ const handler = NextAuth({
       // @ts-ignore
       async authorize(credentials: { email: string; password: string }) {
         const hashedPassword = await bcrpyt.hash(credentials.password, 10);
-        console.log(hashedPassword);
+        console.log(credentials.email, credentials.password);
+        await createUser({
+          email: credentials.email,
+          password: hashedPassword,
+          auth_provider: AuthProvider.CREDENTIALS,
+          name: credentials.email.split("@")[0],
+        });
         return;
       },
     }),
@@ -33,6 +41,5 @@ const handler = NextAuth({
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
-  callbacks: {},
 });
 export { handler as GET, handler as POST };

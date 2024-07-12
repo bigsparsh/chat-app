@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id   String   @id @default(uuid())
+  name String
+  email String @unique
+  password String?
+  created_at DateTime @default(now())
+  profile_img String?
+  auth_provider AuthProvider
+  user_contact Contact[] @relation("contact-user")
+  associated_user_contact Contact[] @relation("contact-associated-user")
+  sent_messages Message[] @relation("message-sender")
+  recieved_messages Message[] @relation("message-receiver")
+}
+
+model Contact {
+  contact_id String @id @default(uuid())
+  user_id String
+  associated_user_id String
+  user User @relation("contact-user", fields: [user_id], references: [user_id])
+  associated_user User @relation("contact-associated-user", fields: [associated_user_id], references: [user_id])
+}
+ 
+model Message {
+  message_id String @id @default(uuid())
+  sender_id String
+  receiver_id String
+  message String
+  created_at DateTime @default(now())
+  sender User @relation("message-sender", fields: [sender_id], references: [user_id])
+  receiver User @relation("message-receiver", fields: [receiver_id], references: [user_id])
+}
+
+enum AuthProvider {
+  CREDENTIALS
+  GOOGLE
+  GITHUB
+}

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@prisma/client": "^5.16.2",
     "@repo/ui": "*",
     "next": "15.0.0-rc.0",
     "next-auth": "^4.24.7",
@@ -17,6 +18,7 @@
     "react-dom": "19.0.0-rc-f994737d14-20240522"
   },
   "devDependencies": {
+    "@types/bun": "^1.1.6",
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "typescript": "^5",
