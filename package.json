@@ -6,7 +6,11 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "ui:add": "cd packages/ui && bunx --bun shadcn-ui@latest add"
+    "ui:add": "cd packages/ui && bunx --bun shadcn-ui@latest add",
+    "db:generate": "cd packages/db && prisma generate",
+    "db:studio": "cd packages/db && prisma studio",
+    "db:migrate": "cd packages/db && prisma migrate dev --name",
+    "db:push": "cd packages/db && prisma db push"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.19",

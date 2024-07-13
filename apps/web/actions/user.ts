@@ -2,6 +2,7 @@
 import prisma from "@repo/db";
 import { userInputSchema } from "@repo/types/user";
 import { AuthProvider } from "@prisma/client";
+import bcrypt from "bcrypt";
 
 export const createUser = async ({
   name,
@@ -26,7 +27,7 @@ export const createUser = async ({
   };
   const validation = userInputSchema.safeParse(user);
   if (!validation.success) {
-    throw new Error("Invaild credentials provided");
+    throw new Error(JSON.stringify(validation.error));
   }
 
   const existingUser = await prisma.user.findUnique({
@@ -44,13 +45,16 @@ export const createUser = async ({
         throw new Error("User already exists with Github");
     }
   }
+  const hashedPassword = password
+    ? await bcrypt.hash(password as string, 10)
+    : null;
   const newUser = await prisma.user.create({
     data: {
       email,
-      password,
+      password: hashedPassword,
       auth_provider,
       profile_img,
-      name,
+      name: name as string,
       created_at: new Date(),
     },
   });

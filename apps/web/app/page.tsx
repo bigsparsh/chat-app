@@ -48,9 +48,11 @@ export default function Component() {
           >
             Contact
           </Link>
-          <Button variant="outline" className="shrink-0">
-            Sign Up
-          </Button>
+          <Link href="/auth/signup">
+            <Button variant="outline" className="shrink-0">
+              Sign Up
+            </Button>
+          </Link>
           <Button variant="ghost" className="shrink-0">
             Login
           </Button>

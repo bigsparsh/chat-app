@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Toaster } from "@repo/ui/components/ui/sonner";
 import "@repo/ui/globals.css";
 import Providers from "./providers";
 
@@ -17,6 +18,7 @@ export default function RootLayout({
       <body>
         <Providers attribute="class" defaultTheme="dark">
           {children}
+          <Toaster />
         </Providers>
       </body>
     </html>

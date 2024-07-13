@@ -36,7 +36,11 @@ export const userInputSchema = z.object({
     .min(3, { message: "Name must be above 3 characters" })
     .max(20, { message: "Name must be below 20 characters" }),
   email: z.string().email({ message: "The email is invaild" }),
-  password: z.string().optional(),
+  password: z
+    .string()
+    .min(3, { message: "Password must be above 3 characters" })
+    .max(20, { message: "Password must be under 20 characters" })
+    .optional(),
   created_at: z.date(),
   auth_provider: z.nativeEnum(AuthProvider),
   profile_img: z
