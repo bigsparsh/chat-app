@@ -42,7 +42,10 @@ export default () => {
       redirect: false,
     });
     if (output?.ok) router.push("/auth/login");
-    else toast(JSON.stringify(output));
+    else
+      toast("Can't make a new account", {
+        description: output?.error,
+      });
   };
 
   return (

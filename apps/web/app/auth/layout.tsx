@@ -1,19 +1,20 @@
 "use client";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useRouter } from "next/router";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
-export default async ({ children }: { children: React.ReactNode }) => {
-  const path = usePathname();
-  const queryParams = useSearchParams().get("error");
-  const router = useRouter();
-  router.push({
-    query: {},
-  });
-  if (queryParams) {
-    toast(queryParams);
-  }
+export default ({ children }: { children: React.ReactNode }) => {
+  const error = useSearchParams().get("error");
+  const session = useSession();
+  useEffect(() => {
+    if (error) {
+      toast("Can't create a new account", {
+        description: error,
+      });
+    }
+  }, [error, session]);
   return (
     <div className="flex flex-col min-h-dvh">
       <header className="bg-background border-b px-4 lg:px-6 h-14 flex items-center">

@@ -53,9 +53,11 @@ export default function Component() {
               Sign Up
             </Button>
           </Link>
-          <Button variant="ghost" className="shrink-0">
-            Login
-          </Button>
+          <Link href="/auth/login">
+            <Button variant="ghost" className="shrink-0">
+              Login
+            </Button>
+          </Link>
         </nav>
       </header>
       <main className="flex-1">
