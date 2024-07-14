@@ -10,18 +10,14 @@ import {
 import { Button } from "@repo/ui/components/ui/button";
 import { Label } from "@repo/ui/components/ui/label";
 import { Input } from "@repo/ui/components/ui/input";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRef } from "react";
-import { useRouter } from "next/navigation";
-import { loginUser } from "../../../actions/user";
 import { z } from "zod";
 import { toast } from "sonner";
 
 export default function Component() {
-  const session = useSession();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   const handleSubmit = async () => {
     const formInput = z.object({
@@ -40,10 +36,18 @@ export default function Component() {
       return;
     }
     try {
-      await loginUser({
-        email: emailRef.current?.value as string,
-        password: passwordRef.current?.value as string,
+      const output = await signIn("login", {
+        email: emailRef.current?.value,
+        password: passwordRef.current?.value,
+        redirect: false,
       });
+      if (output?.ok) {
+        toast("Login successful");
+      } else {
+        toast("Can't login", {
+          description: output?.error,
+        });
+      }
     } catch (error: any) {
       toast("Can't login", {
         description: error.message,

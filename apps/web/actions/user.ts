@@ -4,7 +4,6 @@ import { userInputSchema } from "@repo/types/user";
 import { AuthProvider } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { z } from "zod";
-import { signIn } from "next-auth/react";
 
 export const createUser = async ({
   name,
@@ -73,12 +72,7 @@ export const loginUser = async ({
 }) => {
   const formSchema = z.object({
     email: z.string().email({ message: "The email format is not correct" }),
-    password: z
-      .string()
-      .min(6, { message: "The password must be at least 6 characters long" })
-      .max(20, {
-        message: "The password must be at most 20 characters long",
-      }),
+    password: z.string(),
   });
   const validation = formSchema.safeParse({ email, password });
 
@@ -105,11 +99,7 @@ export const loginUser = async ({
     user.password as string,
   );
   if (isCorrectPassword) {
-    await signIn("credentials", {
-      email,
-      password,
-    });
-    return;
+    return user;
   }
   throw new Error("Incorrect password");
 };

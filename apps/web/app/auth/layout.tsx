@@ -1,18 +1,21 @@
 "use client";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
 export default ({ children }: { children: React.ReactNode }) => {
   const error = useSearchParams().get("error");
   const session = useSession();
+  const router = useRouter();
+  const path = usePathname();
   useEffect(() => {
     if (error) {
       toast("Can't create a new account", {
         description: error,
       });
+      router.push(path);
     }
   }, [error, session]);
   return (
