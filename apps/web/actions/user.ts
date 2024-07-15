@@ -4,6 +4,7 @@ import { userInputSchema } from "@repo/types/user";
 import { AuthProvider } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { z } from "zod";
+import { getServerSession } from "next-auth";
 
 export const createUser = async ({
   name,
@@ -36,19 +37,39 @@ export const createUser = async ({
       email,
     },
   });
-  if (existingUser) {
-    switch (existingUser.auth_provider) {
-      case AuthProvider.CREDENTIALS:
-        throw new Error("User already exists with email credentials");
-      case AuthProvider.GOOGLE:
-        throw new Error("User already exists with Google");
-      case AuthProvider.GITHUB:
-        throw new Error("User already exists with Github");
-    }
-  }
   const hashedPassword = password
     ? await bcrypt.hash(password as string, 10)
     : null;
+  if (existingUser) {
+    if (
+      (existingUser.auth_provider === AuthProvider.GITHUB &&
+        auth_provider === AuthProvider.GITHUB) ||
+      (existingUser.auth_provider === AuthProvider.GOOGLE &&
+        auth_provider === AuthProvider.GOOGLE)
+    ) {
+      return await prisma.user.update({
+        where: {
+          email,
+        },
+        data: {
+          name,
+          profile_img,
+        },
+      });
+    }
+    if (
+      existingUser.auth_provider === AuthProvider.GITHUB &&
+      auth_provider === AuthProvider.GOOGLE
+    ) {
+      throw new Error("User already exists in GitHub");
+    }
+    if (
+      existingUser.auth_provider === AuthProvider.GOOGLE &&
+      auth_provider === AuthProvider.GITHUB
+    ) {
+      throw new Error("User already exists in Google");
+    }
+  }
   const newUser = await prisma.user.create({
     data: {
       email,
@@ -63,43 +84,18 @@ export const createUser = async ({
   return newUser;
 };
 
-export const loginUser = async ({
-  email,
-  password,
-}: {
-  email: string;
-  password: string;
-}) => {
-  const formSchema = z.object({
-    email: z.string().email({ message: "The email format is not correct" }),
-    password: z.string(),
-  });
-  const validation = formSchema.safeParse({ email, password });
-
-  if (!validation.success) {
-    throw new Error(JSON.stringify(validation.error));
+export const getUsers = async () => {
+  const session = await getServerSession();
+  if (!session || !session.user) {
+    return [];
   }
-
-  const user = await prisma.user.findUnique({
+  const users = await prisma.user.findMany({
     where: {
-      email,
+      NOT: {
+        email: session.user.email as string,
+      },
     },
   });
-  if (!user) {
-    throw new Error("User not found");
-  }
-  switch (user.auth_provider) {
-    case AuthProvider.GOOGLE:
-      throw new Error("User already exists with Google");
-    case AuthProvider.GITHUB:
-      throw new Error("User already exists with Github");
-  }
-  const isCorrectPassword = await bcrypt.compare(
-    password,
-    user.password as string,
-  );
-  if (isCorrectPassword) {
-    return user;
-  }
-  throw new Error("Incorrect password");
+
+  return users;
 };

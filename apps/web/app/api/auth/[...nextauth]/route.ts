@@ -2,14 +2,13 @@ import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
-import { createUser, loginUser } from "../../../../actions/user";
+import { createUser } from "../../../../actions/user";
 import { AuthProvider } from "@prisma/client";
 
 const handler = NextAuth({
   providers: [
     CredentialsProvider({
-      name: "Signup",
-      id: "credentials",
+      name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
@@ -21,22 +20,6 @@ const handler = NextAuth({
           password: credentials.password,
           auth_provider: AuthProvider.CREDENTIALS,
           name: credentials.email.split("@")[0],
-        });
-        return newUser;
-      },
-    }),
-    CredentialsProvider({
-      name: "Login",
-      id: "login",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      // @ts-ignore
-      async authorize(credentials: { email: string; password: string }) {
-        const newUser = await loginUser({
-          email: credentials.email,
-          password: credentials.password,
         });
         return newUser;
       },
