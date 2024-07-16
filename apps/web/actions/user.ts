@@ -99,3 +99,16 @@ export const getUsers = async () => {
 
   return users;
 };
+
+export const getUserById = async (user_id: string) => {
+  if (z.string().uuid().safeParse(user_id).success === false)
+    throw new Error("Invalid user id");
+
+  const user = await prisma.user.findUnique({
+    where: {
+      user_id,
+    },
+  });
+
+  return user;
+};

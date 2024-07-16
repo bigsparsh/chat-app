@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Toaster } from "@repo/ui/components/ui/sonner";
 import "@repo/ui/globals.css";
 import Providers from "./providers";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -17,7 +18,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers attribute="class" defaultTheme="dark">
-          {children}
+          <Suspense>{children}</Suspense>
           <Toaster />
         </Providers>
       </body>

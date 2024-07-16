@@ -14,13 +14,11 @@ import { toast } from "sonner";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { z } from "zod";
 import { useRef } from "react";
-import { useRouter } from "next/navigation";
 
 export default () => {
   const session = useSession();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   const handleSubmit = async () => {
     const formInput = z.object({
@@ -41,8 +39,9 @@ export default () => {
       password: passwordRef.current?.value,
       redirect: false,
     });
-    if (output?.ok) router.push("/auth/login");
-    else
+    if (output?.ok) {
+      toast("Account created successfully");
+    } else
       toast("Can't make a new account", {
         description: output?.error,
       });

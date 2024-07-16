@@ -2,7 +2,7 @@
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { toast } from "sonner";
 
 export default ({ children }: { children: React.ReactNode }) => {
