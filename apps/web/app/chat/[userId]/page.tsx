@@ -11,7 +11,7 @@ import {
   SearchIcon,
   PaperclipIcon,
   MoveHorizontalIcon,
-  SendIcon,
+  CheckCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -34,8 +34,8 @@ export default ({ params }: { params: { userId: string } }) => {
   };
 
   return (
-    <div className="flex-1 border border-red-100">
-      <div className="flex h-16 items-center justify-between border-b px-4">
+    <div className="h-full flex flex-col">
+      <div className="flex h-16 py-2 items-center justify-between border-b px-4">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10 border">
             <AvatarImage src="/placeholder-user.jpg" />
@@ -60,70 +60,34 @@ export default ({ params }: { params: { userId: string } }) => {
           </Button>
         </div>
       </div>
-      <div className="flex-1 overflow-auto p-4">
-        <div className="grid gap-4">
-          <div className="flex items-start gap-4">
-            <Avatar className="h-10 w-10 border">
-              <AvatarImage src="/placeholder-user.jpg" />
-              <AvatarFallback>AC</AvatarFallback>
-            </Avatar>
-            <div className="rounded-lg bg-muted p-4 text-sm">
-              <p>Hey there! How can I help you today?</p>
-              <div className="mt-2 text-xs text-muted-foreground">
-                <time dateTime="2023-07-14">Jul 14, 2:30 PM</time>
-              </div>
-            </div>
+      <div className="grow overflow-auto flex flex-col p-5 gap-3">
+        <div className="flex-col bg-accent w-fit max-w-2xl p-3 rounded-b-3xl rounded-tr-3xl flex gap-2 relative ml-5">
+          <div className="border-b-transparent border-r-[15px] border-b-[15px] border-r-accent h-0 w-0 absolute top-0 left-[-15px]" />
+          <p className="">
+            HHey how are you ?Hey how are you ?Hey how are you ?Hey how are you
+            ?Hey how are you ?Hey how are you ?Hey how are you ?Hey how are you
+            ?Hey how are you ?Hey how are you ?ey how are you ?{" "}
+          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-white/50 text-sm">11:12 PM</p>
+            <CheckCheck size={20} className="text-white/50" />
           </div>
-          <div className="flex items-start gap-4 justify-end">
-            <div className="rounded-lg bg-primary p-4 text-sm text-primary-foreground">
-              <p>I'm looking to discuss a new project we're working on.</p>
-              <div className="mt-2 text-xs text-muted-foreground">
-                <time dateTime="2023-07-14">Jul 14, 2:32 PM</time>
-              </div>
-            </div>
-            <Avatar className="h-10 w-10 border">
-              <AvatarImage src="/placeholder-user.jpg" />
-              <AvatarFallback>AC</AvatarFallback>
-            </Avatar>
-          </div>
-          <div className="flex items-start gap-4">
-            <Avatar className="h-10 w-10 border">
-              <AvatarImage src="/placeholder-user.jpg" />
-              <AvatarFallback>AC</AvatarFallback>
-            </Avatar>
-            <div className="rounded-lg bg-muted p-4 text-sm">
-              <p>Sure, I'd be happy to discuss the project with you.</p>
-              <div className="mt-2 text-xs text-muted-foreground">
-                <time dateTime="2023-07-14">Jul 14, 2:34 PM</time>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-start gap-4 justify-end">
-            <div className="rounded-lg bg-primary p-4 text-sm text-primary-foreground">
-              <p>
-                Great, let's go over the details. I'll share my screen so we can
-                discuss the project plan.
-              </p>
-              <div className="mt-2 text-xs text-muted-foreground">
-                <time dateTime="2023-07-14">Jul 14, 2:36 PM</time>
-              </div>
-            </div>
-            <Avatar className="h-10 w-10 border">
-              <AvatarImage src="/placeholder-user.jpg" />
-              <AvatarFallback>AC</AvatarFallback>
-            </Avatar>
+        </div>
+        <div className="flex-col bg-primary self-end text-card w-fit max-w-2xl p-3 rounded-b-3xl rounded-tl-3xl flex gap-2 relative mr-5">
+          <div className="border-b-transparent border-l-[15px] border-b-[15px] border-l-primary h-0 w-0 absolute top-0 right-[-15px]" />
+          <p className="">Hello brother</p>
+          <div className="flex flex-row-reverse items-center gap-5 justify-between">
+            <p className="text-card/50 text-sm">11:12 PM</p>
+            <CheckCheck size={20} className="text-card/50" />
           </div>
         </div>
       </div>
       <div className="border-t p-4">
-        <div className="relative">
+        <div>
           <Textarea
             placeholder="Type your message..."
             className="min-h-[48px] w-full rounded-2xl resize-none border border-neutral-400 shadow-sm pr-16"
           />
-          <Button type="submit" size="icon" className="absolute top-3 right-3">
-            <SendIcon className="h-5 w-5" />
-          </Button>
         </div>
       </div>
     </div>

@@ -61,7 +61,7 @@ export default ({ children }: { children: React.ReactNode }) => {
             })}
         </div>
       </div>
-      <div className="basis-3/4">{children}</div>
+      <div className="basis-3/4 ">{children}</div>
     </div>
   );
 };
