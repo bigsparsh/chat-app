@@ -118,3 +118,20 @@ export const getUserById = async (user_id: string) => {
 
   return user;
 };
+
+export const searchUser = async (email_filter: string = "") => {
+  const session = await getServerSession();
+  if (!session) {
+    throw new Error("Email filter is required to search users");
+  }
+  return await prisma.user.findMany({
+    where: {
+      NOT: {
+        email: session?.user?.email as string,
+      },
+      email: {
+        contains: email_filter,
+      },
+    },
+  });
+};

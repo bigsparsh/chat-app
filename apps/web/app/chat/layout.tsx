@@ -6,8 +6,8 @@ import {
 } from "@repo/ui/components/ui/avatar";
 import { Input } from "@repo/ui/components/ui/input";
 import { Search, Plus, ChevronDownIcon } from "lucide-react";
-import { getUsers } from "../../actions/user";
-import { useEffect, useRef, useState } from "react";
+import { getUsers, searchUser } from "../../actions/user";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Contact, User } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { Button } from "@repo/ui/components/ui/button";
@@ -41,7 +41,6 @@ export default ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const [contacts, setContacts] = useState<(Contact & ContactExtras)[]>();
   const [users, setUsers] = useState<User[]>();
-  const addContactInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
     console.log("Session: " + session);
     gets();
@@ -52,8 +51,19 @@ export default ({ children }: { children: React.ReactNode }) => {
     setContacts(await getContacts());
   };
 
-  const handleAddContact = async () => {
-    await createContact(addContactInput.current?.value as string);
+  const handleContactSearchChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setUsers(await searchUser(e.target.value));
+  };
+
+  const handleAddContact = async (associated_user_id: string) => {
+    await createContact(
+      associated_user_id,
+      // @ts-ignore
+      session.data?.user?.user_id as string,
+    );
+    gets();
     toast("Contact added successfully");
   };
   return (
@@ -66,23 +76,27 @@ export default ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
         <div className="flex flex-col  grow">
-          {users?.length === 0 || !users
+          {contacts?.length === 0 || !contacts
             ? "No users found in your contacts"
-            : users?.map((user) => {
+            : contacts?.map((contact) => {
               return (
                 <div
                   className="flex items-center gap-3 w-full p-3 object-none border-b border-accent  hover:bg-accent cursor-pointer"
-                  onClick={() => router.push("/chat/" + user.user_id)}
+                  onClick={() =>
+                    router.push("/chat/" + contact.associated_user.user_id)
+                  }
                 >
                   <Avatar className="h-10 w-10 border">
-                    <AvatarImage src={user.profile_img as string} />
+                    <AvatarImage
+                      src={contact.associated_user.profile_img as string}
+                    />
                     <AvatarFallback>
-                      {user.name.toUpperCase()[0]}
+                      {contact.associated_user.name.toUpperCase()[0]}
                     </AvatarFallback>
                   </Avatar>
                   <div className="w-full">
                     <div className="font-medium flex justify-between">
-                      <h1>{user.name}</h1>
+                      <h1>{contact.associated_user.name}</h1>
                       <p className="text-sm font-normal text-white/50">
                         7:00 AM
                       </p>
@@ -104,21 +118,28 @@ export default ({ children }: { children: React.ReactNode }) => {
             </PopoverTrigger>
             <PopoverContent className="w-80">
               <div className="space-y-2">
+                <h1 className="text-lg font-semibold mb-3">Add Contacts</h1>
                 <Input
                   type="email"
                   placeholder="Search by email"
                   className="w-full"
-                  onChange={gets}
+                  onChange={handleContactSearchChange}
                 />
                 <div className="space-y-2">
                   {users?.length != 0 ? (
                     users?.map((user) => {
+                      if (
+                        contacts
+                          ?.map((contact) => contact.associated_user.email)
+                          .includes(user.email)
+                      )
+                        return;
                       return (
                         <div
                           className="flex items-center justify-between"
                           key={user.user_id}
                         >
-                          <span className="font-medium">{user.email}</span>
+                          <span>{user.email}</span>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button variant="ghost" size="icon">
@@ -135,7 +156,9 @@ export default ({ children }: { children: React.ReactNode }) => {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>No</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleAddContact}>
+                                <AlertDialogAction
+                                  onClick={() => handleAddContact(user.user_id)}
+                                >
                                   Yes
                                 </AlertDialogAction>
                               </AlertDialogFooter>

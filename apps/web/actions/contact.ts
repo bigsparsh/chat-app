@@ -21,20 +21,17 @@ export const getContacts = async () => {
   });
 };
 
-export const createContact = async (user_id: string) => {
-  const session = await getServerSession();
-  if (!session || !session.user) {
+export const createContact = async (
+  associated_user_id: string,
+  user_id: string,
+) => {
+  if (!associated_user_id || !user_id) {
     throw new Error("User not found");
   }
-  const loggedInUser = await prisma.user.findUnique({
-    where: {
-      email: session.user.email as string,
-    },
-  });
   return await prisma.contact.create({
     data: {
-      user_id: loggedInUser?.user_id as string,
-      associated_user_id: user_id,
+      user_id,
+      associated_user_id,
     },
     include: {
       user: true,
