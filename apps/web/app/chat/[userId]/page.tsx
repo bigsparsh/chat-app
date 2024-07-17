@@ -12,6 +12,7 @@ import {
   PaperclipIcon,
   MoveHorizontalIcon,
   CheckCheck,
+  Send,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -82,13 +83,14 @@ export default ({ params }: { params: { userId: string } }) => {
           </div>
         </div>
       </div>
-      <div className="border-t p-4">
-        <div>
-          <Textarea
-            placeholder="Type your message..."
-            className="min-h-[48px] w-full rounded-2xl resize-none border border-neutral-400 shadow-sm pr-16"
-          />
-        </div>
+      <div className="border-t p-4 flex gap-3">
+        <Textarea
+          placeholder="Type your message..."
+          className="max-h-[48px] h-fit  rounded-2xl resize-none border border-neutral-400 shadow-sm pr-16 grow"
+        />
+        <Button className="rounded-xl self-end">
+          <Send />
+        </Button>
       </div>
     </div>
   );

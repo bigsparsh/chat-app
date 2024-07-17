@@ -3,7 +3,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import { createUser } from "../../../../actions/user";
-import { AuthProvider } from "@prisma/client";
+import { AuthProvider, User } from "@prisma/client";
+import prisma from "@repo/db";
 
 const handler = NextAuth({
   providers: [
@@ -42,6 +43,23 @@ const handler = NextAuth({
     error: "/auth/signup",
   },
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        const existingUser = await prisma.user.findUnique({
+          where: {
+            email: user.email as string,
+          },
+        });
+        if (existingUser) {
+          token.user = existingUser;
+        }
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.user = token.user as User;
+      return session;
+    },
     // @ts-ignore
     async signIn({
       user,

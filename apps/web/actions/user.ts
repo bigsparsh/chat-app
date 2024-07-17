@@ -42,6 +42,12 @@ export const createUser = async ({
     : null;
   if (existingUser) {
     if (
+      existingUser.auth_provider === AuthProvider.CREDENTIALS &&
+      auth_provider === AuthProvider.CREDENTIALS
+    ) {
+      return existingUser;
+    }
+    if (
       (existingUser.auth_provider === AuthProvider.GITHUB &&
         auth_provider === AuthProvider.GITHUB) ||
       (existingUser.auth_provider === AuthProvider.GOOGLE &&
@@ -87,7 +93,7 @@ export const createUser = async ({
 export const getUsers = async () => {
   const session = await getServerSession();
   if (!session || !session.user) {
-    return [];
+    throw new Error("User not found");
   }
   const users = await prisma.user.findMany({
     where: {
