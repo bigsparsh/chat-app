@@ -1,7 +1,7 @@
 {
   "name": "@repo/types",
-  "module": "index.ts",
-  "type": "module",
+  "version": "0.0.0",
+  "private": true,
   "exports": {
     "./*": "./*.ts"
   },

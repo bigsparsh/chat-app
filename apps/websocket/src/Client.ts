@@ -1,15 +1,10 @@
+import { clientSchema } from "@repo/types/websocket";
 import { WebSocket } from "ws";
-
-export type ClientType = {
-  client_id: string;
-  email: string;
-  ws: WebSocket;
-  connected_to: string | null;
-};
+import z from "zod";
 
 export class Client {
   private static instance: Client;
-  private client_array: ClientType[];
+  private client_array: z.infer<typeof clientSchema>[];
   private constructor() {
     this.client_array = [];
   }
@@ -19,10 +14,14 @@ export class Client {
     }
     return Client.instance;
   }
-  addClient(ws: WebSocket) {
-    // logic to add the client to the client_array
+  add(client: z.infer<typeof clientSchema>) {
+    clientSchema.parse(client);
+    this.client_array.push(client);
   }
-  removeClient(ws: WebSocket) {
+  remove(ws: WebSocket) {
     // logic to remove the client from the client_array
+  }
+  get() {
+    return this.client_array;
   }
 }
