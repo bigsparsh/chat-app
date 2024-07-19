@@ -90,9 +90,14 @@ export default ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
         <div className="flex flex-col  grow">
-          {contacts?.length === 0 || !contacts
-            ? "No users found in your contacts"
-            : contacts?.map((contact) => {
+          {contacts?.length === 0 || !contacts ? (
+            <div className="flex py-20 items-center flex-col grow h-1/2 text-primary/50">
+              <h1 className="leading-4">Seems like you don't have friends</h1>
+              <p>Add some from down below</p>
+              <ChevronDownIcon />
+            </div>
+          ) : (
+            contacts?.map((contact) => {
               return (
                 <div
                   className="flex items-center gap-3 w-full p-3 object-none border-b border-accent  hover:bg-accent cursor-pointer"
@@ -121,7 +126,8 @@ export default ({ children }: { children: React.ReactNode }) => {
                   </div>
                 </div>
               );
-            })}
+            })
+          )}
         </div>
         <div className="border-t flex justify-evenly gap-3 items-center p-2 h-16">
           <Popover>
@@ -149,15 +155,22 @@ export default ({ children }: { children: React.ReactNode }) => {
                       )
                         return;
                       return (
-                        <div
-                          className="flex items-center justify-between"
-                          key={user.user_id}
-                        >
-                          <span>{user.email}</span>
+                        <div key={user.user_id}>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <Plus className="w-4 h-4" />
+                              <Button
+                                className="flex items-center gap-3 w-full"
+                                variant="ghost"
+                              >
+                                <Avatar className="h-7 w-7 border">
+                                  <AvatarImage
+                                    src={user.profile_img as string}
+                                  />
+                                  <AvatarFallback>
+                                    {user.name.toUpperCase()[0]}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="grow">{user.email}</span>
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
