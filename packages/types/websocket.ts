@@ -20,7 +20,7 @@ export const connectionSchema = z.object({
 });
 
 export const typeSchema = z.object({
-  type: z.enum(["message", "connection", "peer connection"]),
+  type: z.enum(["message", "connection", "peer connection", "broadcast"]),
 });
 
 export const clientSchema = z.object({

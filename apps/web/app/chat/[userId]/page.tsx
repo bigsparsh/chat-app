@@ -17,9 +17,22 @@ import {
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getUserById } from "../../../actions/user";
+import { useSession } from "next-auth/react";
 
 export default ({ params }: { params: { userId: string } }) => {
   const [user, setUser] = useState<User>();
+  const session = useSession();
+  const ws = new WebSocket("ws://localhost:8080");
+
+  ws.onopen = () => {
+    ws.send(
+      JSON.stringify({
+        type: "peer connection",
+        connected_to: params.userId,
+      }),
+    );
+  };
+
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     gets();

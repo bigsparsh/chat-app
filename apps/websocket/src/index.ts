@@ -78,10 +78,18 @@ wss.on("connection", (ws) => {
         break;
 
       case "peer connection":
+        // TODO: add the logic for a user to ask for another user's online status
+        // and if the user is online, send a message to the user to establish a peer connection
+        break;
+
+      case "broadcast":
+        ws.send(JSON.stringify(client.get().map((client) => client.email)));
         break;
     }
   });
-
+  ws.on("close", () => {
+    client.remove(ws);
+  });
   ws.send("Established connection with websocket server");
 });
 //askldjk

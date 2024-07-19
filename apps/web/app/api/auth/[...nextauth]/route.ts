@@ -57,7 +57,7 @@ const handler = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      session.user = token.user as User;
+      session.user = token.user;
       return session;
     },
     // @ts-ignore

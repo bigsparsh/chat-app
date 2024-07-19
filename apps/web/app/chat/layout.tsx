@@ -41,10 +41,24 @@ export default ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const [contacts, setContacts] = useState<(Contact & ContactExtras)[]>();
   const [users, setUsers] = useState<User[]>();
+  const ws = new WebSocket("ws://localhost:8080");
+
   useEffect(() => {
-    console.log("Session: " + session);
-    gets();
-  }, []);
+    if (session.status === "authenticated") {
+      ws.onopen = () => {
+        ws.send(
+          JSON.stringify({
+            type: "connection",
+            payload: {
+              email: session.data?.user?.email,
+              user_id: session.data?.user?.user_id,
+            },
+          }),
+        );
+      };
+      gets();
+    }
+  }, [session]);
 
   const gets = async () => {
     setUsers(await getUsers());
@@ -79,35 +93,35 @@ export default ({ children }: { children: React.ReactNode }) => {
           {contacts?.length === 0 || !contacts
             ? "No users found in your contacts"
             : contacts?.map((contact) => {
-                return (
-                  <div
-                    className="flex items-center gap-3 w-full p-3 object-none border-b border-accent  hover:bg-accent cursor-pointer"
-                    onClick={() =>
-                      router.push("/chat/" + contact.associated_user.user_id)
-                    }
-                  >
-                    <Avatar className="h-10 w-10 border">
-                      <AvatarImage
-                        src={contact.associated_user.profile_img as string}
-                      />
-                      <AvatarFallback>
-                        {contact.associated_user.name.toUpperCase()[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="w-full">
-                      <div className="font-medium flex justify-between">
-                        <h1>{contact.associated_user.name}</h1>
-                        <p className="text-sm font-normal text-white/50">
-                          7:00 AM
-                        </p>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Hey there! How can I help you?
-                      </div>
+              return (
+                <div
+                  className="flex items-center gap-3 w-full p-3 object-none border-b border-accent  hover:bg-accent cursor-pointer"
+                  onClick={() =>
+                    router.push("/chat/" + contact.associated_user.user_id)
+                  }
+                >
+                  <Avatar className="h-10 w-10 border">
+                    <AvatarImage
+                      src={contact.associated_user.profile_img as string}
+                    />
+                    <AvatarFallback>
+                      {contact.associated_user.name.toUpperCase()[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="w-full">
+                    <div className="font-medium flex justify-between">
+                      <h1>{contact.associated_user.name}</h1>
+                      <p className="text-sm font-normal text-white/50">
+                        7:00 AM
+                      </p>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Hey there! How can I help you?
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              );
+            })}
         </div>
         <div className="border-t flex justify-evenly gap-3 items-center p-2 h-16">
           <Popover>

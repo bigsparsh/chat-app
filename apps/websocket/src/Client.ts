@@ -19,7 +19,7 @@ export class Client {
     this.client_array.push(client);
   }
   remove(ws: WebSocket) {
-    // logic to remove the client from the client_array
+    this.client_array = this.client_array.filter((client) => client.ws !== ws);
   }
   get() {
     return this.client_array;
