@@ -19,6 +19,23 @@ export const connectionSchema = z.object({
   ),
 });
 
+export const redisMessageSchema = z.object({
+  type: z.literal("message"),
+  operation: z.enum(["insert", "update", "delete"]),
+  sender_id: z
+    .string({ message: "The sender_id must be a string" })
+    .uuid({ message: "The sender_id must be a valid UUID" }),
+  receiver_id: z
+    .string({ message: "The receiver_id must be a string" })
+    .uuid({ message: "The receiver_id must be a valid UUID" }),
+  payload: z.object(
+    {
+      message: z.string({ message: "The message must be a string" }),
+    },
+    { message: "The payload must be an object with a message key" },
+  ),
+});
+
 export const typeSchema = z.object({
   type: z.enum(["message", "connection", "peer connection", "broadcast"]),
 });

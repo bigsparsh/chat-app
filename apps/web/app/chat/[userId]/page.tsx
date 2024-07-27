@@ -1,5 +1,5 @@
 "use client";
-import { User } from "@prisma/client";
+import { Message, User } from "@prisma/client";
 import {
   Avatar,
   AvatarFallback,
@@ -19,11 +19,13 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { getUserById } from "../../../actions/user";
 import { useSession } from "next-auth/react";
+import { getMessages } from "../../../actions/message";
 
 export default ({ params }: { params: { userId: string } }) => {
   const [user, setUser] = useState<User>();
   const session = useSession();
   const messageInput = useRef<HTMLTextAreaElement>(null);
+  const [messages, setMessages] = useState<Message[]>();
   const [socket, setSocket] = useState<WebSocket>();
   const [loading, setLoading] = useState(true);
 
@@ -70,6 +72,7 @@ export default ({ params }: { params: { userId: string } }) => {
 
   const gets = async () => {
     try {
+      setMessages(await getMessages(params.userId));
       setUser((await getUserById(params.userId)) as User);
     } catch (e) {
       toast("User not found or invaild ID");

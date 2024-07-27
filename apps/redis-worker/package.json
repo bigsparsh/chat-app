@@ -1,0 +1,11 @@
+{
+  "name": "redis-worker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun --watch run src/index.ts"
+  },
+  "dependencies": {
+    "redis": "^4.6.15"
+  }
+}

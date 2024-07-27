@@ -5,12 +5,23 @@ import {
   messageSchema,
   typeSchema,
 } from "@repo/types/websocket";
+import { createClient } from "redis";
+
+const redisClient = createClient();
+const connectRedis = async () => {
+  try {
+    await redisClient.connect();
+  } catch (err) {
+    console.error("Error connecting to Redis server: ", err);
+  }
+};
+connectRedis();
 
 const wss = new WebSocketServer({ port: 8080 });
 const client = Client.getInstance();
 
 wss.on("connection", (ws) => {
-  ws.on("message", (message) => {
+  ws.on("message", async (message) => {
     try {
       typeSchema.parse(JSON.parse(message.toString()));
     } catch (e) {
@@ -54,6 +65,17 @@ wss.on("connection", (ws) => {
           );
           return;
         }
+
+        await redisClient.lPush(
+          "messages",
+          JSON.stringify({
+            type: "message",
+            operation: "insert",
+            sender_id: messageValidate.data.sender_id,
+            receiver_id: messageValidate.data.receiver_id,
+            payload: messageValidate.data.payload,
+          }),
+        );
 
         const receiver = client
           .get()
