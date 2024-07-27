@@ -66,6 +66,11 @@ wss.on("connection", (ws) => {
           ws.send("The reciever user isn't online");
           return;
         }
+        console.log({
+          type: "message",
+          sender_id: messageValidate.data.sender_id,
+          payload: messageValidate.data.payload,
+        });
 
         receiver.ws.send(
           JSON.stringify({
@@ -92,4 +97,3 @@ wss.on("connection", (ws) => {
   });
   ws.send("Established connection with websocket server");
 });
-//askldjk

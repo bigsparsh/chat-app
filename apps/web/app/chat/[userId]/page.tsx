@@ -24,10 +24,13 @@ export default ({ params }: { params: { userId: string } }) => {
   const [user, setUser] = useState<User>();
   const session = useSession();
   const messageInput = useRef<HTMLTextAreaElement>(null);
-  const ws = new WebSocket("ws://localhost:8080");
+  const [socket, setSocket] = useState<WebSocket>();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const ws = new WebSocket("ws://localhost:8080");
+    setSocket(ws);
+
     ws.onopen = () => {
       ws.send(
         JSON.stringify({
@@ -37,7 +40,33 @@ export default ({ params }: { params: { userId: string } }) => {
       );
     };
     gets();
+    return () => {
+      window.removeEventListener("keydown", () => { });
+      ws.close();
+    };
   }, []);
+  useEffect(() => {
+    if (session.status == "authenticated" && socket) {
+      window.onkeydown = (e) => {
+        if (e.key == "Enter") {
+          console.log(session.data?.user.user_id, params.userId);
+          socket.send(
+            JSON.stringify({
+              type: "message",
+              sender_id: session.data?.user.user_id,
+              receiver_id: params.userId,
+              payload: {
+                message: messageInput.current?.value,
+              },
+            }),
+          );
+        }
+      };
+    }
+    return () => {
+      window.removeEventListener("keydown", () => { });
+    };
+  }, [session, session]);
 
   const gets = async () => {
     try {
@@ -108,14 +137,6 @@ radial-gradient(circle, hsl(var(--accent)) 10%, transparent 10%) center/ 20px 20
                   <CheckCheck size={20} className="text-white/50" />
                 </div>
               </Skeleton>
-            </div>
-            <div className="flex-col bg-primary self-end text-card w-fit max-w-2xl p-3 rounded-b-3xl rounded-tl-3xl flex gap-2 relative mr-5">
-              <div className="border-b-transparent border-l-[15px] border-b-[15px] border-l-primary h-0 w-0 absolute top-0 right-[-15px]" />
-              <p className="">Hello brother</p>
-              <div className="flex flex-row-reverse items-center gap-5 justify-between">
-                <p className="text-card/50 text-sm">11:12 PM</p>
-                <CheckCheck size={20} className="text-card/50" />
-              </div>
             </div>
           </>
         ) : (

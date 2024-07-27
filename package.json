@@ -10,14 +10,14 @@
     "db:generate": "cd packages/db && prisma generate",
     "db:studio": "cd packages/db && prisma studio",
     "db:migrate": "cd packages/db && prisma migrate dev --name",
-    "db:push": "cd packages/db && prisma db push"
+    "db:push": "cd packages/db && prisma db push && prisma db seed"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.39",
     "prettier": "^3.2.5",
     "tailwindcss": "^3.4.4",
-    "turbo": "^2.0.6",
+    "turbo": "^2.0.7",
     "typescript": "^5.4.5"
   },
   "engines": {
