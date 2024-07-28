@@ -22,6 +22,11 @@ import { useSession } from "next-auth/react";
 import { getMessages } from "../../../actions/message";
 
 export default ({ params }: { params: { userId: string } }) => {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const chatbox = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User>();
   const session = useSession();
   const messageInput = useRef<HTMLTextAreaElement>(null);
@@ -30,45 +35,82 @@ export default ({ params }: { params: { userId: string } }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080");
-    setSocket(ws);
+    if (session.status == "authenticated") {
+      const ws = new WebSocket("ws://localhost:8080");
+      setSocket(ws);
 
-    ws.onopen = () => {
-      ws.send(
-        JSON.stringify({
-          type: "peer connection",
-          connected_to: params.userId,
-        }),
-      );
-    };
-    gets();
+      ws.onopen = () => {
+        ws.send(
+          JSON.stringify({
+            type: "connection",
+            payload: {
+              email: session.data?.user?.email,
+              user_id: session.data?.user?.user_id,
+            },
+          }),
+        );
+        ws.send(
+          JSON.stringify({
+            type: "peer connection",
+            connected_to: params.userId,
+          }),
+        );
+      };
+      ws.onmessage = (msg) => {
+        // Debug statment (Remove later)
+        toast(JSON.stringify(msg));
+        gets();
+      };
+      gets();
+    }
     return () => {
-      window.removeEventListener("keydown", () => { });
-      ws.close();
+      socket?.close();
     };
-  }, []);
+  }, [session]);
+
+  useEffect(() => {
+    if (chatbox.current) {
+      chatbox.current.scrollTop = chatbox.current.scrollHeight;
+    }
+  }, [messages]);
+
   useEffect(() => {
     if (session.status == "authenticated" && socket) {
       window.onkeydown = (e) => {
         if (e.key == "Enter") {
-          console.log(session.data?.user.user_id, params.userId);
-          socket.send(
-            JSON.stringify({
-              type: "message",
-              sender_id: session.data?.user.user_id,
-              receiver_id: params.userId,
-              payload: {
-                message: messageInput.current?.value,
-              },
-            }),
-          );
+          sendMessage();
         }
       };
     }
     return () => {
       window.removeEventListener("keydown", () => { });
     };
-  }, [session, session]);
+  }, [session, socket]);
+
+  const sendMessage = async () => {
+    if (!socket) {
+      // Debug statement (Remove later)
+      toast("Socket not connected");
+      return;
+    }
+    if (messageInput.current?.value == "") {
+      return;
+    }
+    socket.send(
+      JSON.stringify({
+        type: "message",
+        sender_id: session.data?.user.user_id,
+        receiver_id: params.userId,
+        payload: {
+          message: messageInput.current?.value,
+        },
+      }),
+    );
+    messageInput.current?.focus();
+    messageInput.current!.value = "";
+    // TODO: find a better solution for this
+    gets();
+  };
 
   const gets = async () => {
     try {
@@ -126,6 +168,7 @@ export default ({ params }: { params: { userId: string } }) => {
 radial-gradient(circle, hsl(var(--accent)) 10%, transparent 10%) center/ 20px 20px
 `,
         }}
+        ref={chatbox}
       >
         {loading ? (
           <>
@@ -143,28 +186,35 @@ radial-gradient(circle, hsl(var(--accent)) 10%, transparent 10%) center/ 20px 20
             </div>
           </>
         ) : (
-          <>
-            <div className="flex-col bg-accent w-fit max-w-2xl p-3 rounded-b-3xl rounded-tr-3xl flex gap-2 relative ml-5">
-              <div className="border-b-transparent border-r-[15px] border-b-[15px] border-r-accent h-0 w-0 absolute top-0 left-[-15px]" />
-              <p className="">
-                HHey how are you ?Hey how are you ?Hey how are you ?Hey how are
-                you ?Hey how are you ?Hey how are you ?Hey how are you ?Hey how
-                are you ?Hey how are you ?Hey how are you ?ey how are you ?{" "}
-              </p>
-              <div className="flex items-center justify-between">
-                <p className="text-white/50 text-sm">11:12 PM</p>
-                <CheckCheck size={20} className="text-white/50" />
-              </div>
-            </div>
-            <div className="flex-col bg-primary self-end text-card w-fit max-w-2xl p-3 rounded-b-3xl rounded-tl-3xl flex gap-2 relative mr-5">
-              <div className="border-b-transparent border-l-[15px] border-b-[15px] border-l-primary h-0 w-0 absolute top-0 right-[-15px]" />
-              <p className="">Hello brother</p>
-              <div className="flex flex-row-reverse items-center gap-5 justify-between">
-                <p className="text-card/50 text-sm">11:12 PM</p>
-                <CheckCheck size={20} className="text-card/50" />
-              </div>
-            </div>
-          </>
+          messages?.map((msg) => {
+            if (msg.sender_id !== session.data?.user.user_id) {
+              return (
+                <div className="flex-col bg-accent w-fit max-w-2xl p-3 rounded-b-3xl rounded-tr-3xl flex gap-2 relative ml-5">
+                  <div className="border-b-transparent border-r-[15px] border-b-[15px] border-r-accent h-0 w-0 absolute top-0 left-[-15px]" />
+                  <p className="">{msg.message}</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-white/50 text-sm">
+                      {formatter.format(msg.created_at)}
+                    </p>
+                    <CheckCheck size={20} className="text-white/50" />
+                  </div>
+                </div>
+              );
+            } else {
+              return (
+                <div className="flex-col bg-primary self-end text-card w-fit max-w-2xl p-3 rounded-b-3xl rounded-tl-3xl flex gap-2 relative mr-5">
+                  <div className="border-b-transparent border-l-[15px] border-b-[15px] border-l-primary h-0 w-0 absolute top-0 right-[-15px]" />
+                  <p className="">{msg.message}</p>
+                  <div className="flex flex-row-reverse items-center gap-5 justify-between">
+                    <p className="text-card/50 text-sm">
+                      {formatter.format(msg.created_at)}
+                    </p>
+                    <CheckCheck size={20} className="text-card/50" />
+                  </div>
+                </div>
+              );
+            }
+          })
         )}
       </div>
       <div className="border-t p-4 flex gap-3">

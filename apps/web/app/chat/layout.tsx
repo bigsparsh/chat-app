@@ -41,21 +41,9 @@ export default ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const [contacts, setContacts] = useState<(Contact & ContactExtras)[]>();
   const [users, setUsers] = useState<User[]>();
-  const ws = new WebSocket("ws://localhost:8080");
 
   useEffect(() => {
     if (session.status === "authenticated") {
-      ws.onopen = () => {
-        ws.send(
-          JSON.stringify({
-            type: "connection",
-            payload: {
-              email: session.data?.user?.email,
-              user_id: session.data?.user?.user_id,
-            },
-          }),
-        );
-      };
       gets();
     }
   }, [session]);
