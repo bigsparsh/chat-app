@@ -38,6 +38,8 @@ export default ({ params }: { params: { userId: string } }) => {
     if (session.status == "authenticated") {
       const ws = new WebSocket("ws://localhost:8080");
       setSocket(ws);
+      setLoading(true);
+      gets();
 
       ws.onopen = () => {
         ws.send(
@@ -57,11 +59,15 @@ export default ({ params }: { params: { userId: string } }) => {
         );
       };
       ws.onmessage = (msg) => {
-        // Debug statment (Remove later)
-        toast(JSON.stringify(msg));
-        gets();
+        try {
+          const data = JSON.parse(msg.data);
+          if (data.type == "message" && data.sender_id == params.userId) {
+            gets();
+          }
+        } catch (err) {
+          toast("Invalid message received");
+        }
       };
-      gets();
     }
     return () => {
       socket?.close();
@@ -93,7 +99,7 @@ export default ({ params }: { params: { userId: string } }) => {
       toast("Socket not connected");
       return;
     }
-    if (messageInput.current?.value == "") {
+    if (messageInput.current?.value.length == 0) {
       return;
     }
     socket.send(

@@ -117,5 +117,12 @@ wss.on("connection", (ws) => {
   ws.on("close", () => {
     client.remove(ws);
   });
-  ws.send("Established connection with websocket server");
+  ws.send(
+    JSON.stringify({
+      type: "connection",
+      payload: {
+        message: "Connected to the server",
+      },
+    }),
+  );
 });
